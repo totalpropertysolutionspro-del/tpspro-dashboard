@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>TPS Pro — Command Center</title>
+<link rel="manifest" id="manifestLink"/>
+<meta name="theme-color" content="#1B5E20"/>
+<meta name="application-name" content="TPS Pro"/>
+<meta name="description" content="Total Property Solutions Pro — Command Center"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="TPS Pro"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%231B5E20'/><text x='50%25' y='58%25' font-size='260' text-anchor='middle' dominant-baseline='middle' fill='%23FDD835' font-family='system-ui'>🧹</text></svg>"/>
+<meta name="msapplication-TileColor" content="#1B5E20"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function(){const manifest={name:"TPS Pro Command Center",short_name:"TPS Pro",description:"Total Property Solutions Pro — live dashboard",start_url:"./",display:"standalone",background_color:"#0F1F10",theme_color:"#1B5E20",orientation:"any",icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%231B5E20'/><text x='50%25' y='58%25' font-size='260' text-anchor='middle' dominant-baseline='middle' fill='%23FDD835' font-family='system-ui'>🧹</text></svg>",sizes:"512x512",type:"image/svg+xml"}]};const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});document.getElementById('manifestLink').href=URL.createObjectURL(blob);})();
+if('serviceWorker'in navigator){const swCode=`const CACHE='tpspro-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll([]))));self.addEventListener('fetch',e=>{if(e.request.url.includes('script.google.com')||e.request.url.includes('googleapis'))return;e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;const swBlob=new Blob([swCode],{type:'application/javascript'});navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});}
+</script>
+<style>
+:root{--green:#1B5E20;--green-mid:#2E7D32;--green-light:#388E3C;--yellow:#FDD835;--yellow-dark:#F9A825;--bg:#0F1F10;--card:#162618;--card2:#1C3020;--border:rgba(253,216,53,0.12);--text:#E8F5E9;--muted:#81C784;--red:#EF5350;--blue:#42A5F5;--orange:#FFA726;--teal:#69F0AE;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;min-height:100vh;}
+a{text-decoration:none;color:inherit;}button{font-family:inherit;cursor:pointer;border:none;}
+.config-banner{background:#b71c1c;color:#fff;padding:12px 24px;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.config-banner.hidden{display:none;}.config-banner strong{font-weight:800;}.config-close{background:rgba(255,255,255,0.2);color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;}
+.topbar{background:var(--green);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:54px;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--yellow);}
+.topbar-brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:16px;}
+.dot{width:10px;height:10px;background:var(--yellow);border-radius:50%;box-shadow:0 0 0 4px rgba(253,216,53,0.2);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.topbar-clock{font-size:12px;color:rgba(255,255,255,0.7);}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--teal);}
+.live-dot{width:7px;height:7px;background:var(--teal);border-radius:50%;animation:pulse 1.6s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(105,240,174,0.5);}50%{box-shadow:0 0 0 5px rgba(105,240,174,0);}}
+.topbar-btn{background:var(--yellow);color:var(--green);font-weight:800;font-size:12px;padding:7px 16px;border-radius:8px;}
+.refresh-btn{background:rgba(255,255,255,0.1);color:#fff;font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:6px;}
+.dash{display:grid;grid-template-columns:210px 1fr 260px;min-height:calc(100vh - 54px);}
+@media(max-width:1100px){.dash{grid-template-columns:1fr 280px;}}
+@media(max-width:750px){.dash{grid-template-columns:1fr;}}
+.metrics{grid-column:1/-1;display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
+@media(max-width:1100px){.metrics{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:600px){.metrics{grid-template-columns:repeat(2,1fr);}}
+.metric{background:var(--card);padding:14px 18px;}
+.metric-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:4px;}
+.metric-val{font-size:28px;font-weight:800;color:var(--yellow);line-height:1;}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+.metric-trend{font-size:11px;font-weight:700;}.up{color:var(--teal);}.dn{color:var(--red);}.loading-val{opacity:.4;}
+.sidebar{background:var(--card);border-right:1px solid var(--border);padding:16px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+@media(max-width:1100px){.sidebar{display:none;}}
+.sec-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700;padding:8px 8px 4px;}
+.qa{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;background:var(--card2);color:var(--text);font-size:13px;font-weight:600;width:100%;text-align:left;border:1px solid transparent;transition:all .2s;}
+.qa:hover{background:var(--green-light);color:#fff;border-color:var(--yellow);}
+.qa .em{font-size:15px;width:22px;text-align:center;}
+.qa .bd{margin-left:auto;background:var(--yellow);color:var(--green);font-size:10px;font-weight:800;padding:2px 6px;border-radius:999px;}
+.qa .bd.red{background:var(--red);color:#fff;}
+.center{padding:16px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.card-h{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.card-title{font-size:13px;font-weight:700;color:var(--yellow);}
+.card-sub{font-size:11px;color:var(--muted);}
+.card-b{padding:14px 16px;}
+.ch{position:relative;}.ch.h180{height:180px;}.ch.h140{height:140px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:600px){.two{grid-template-columns:1fr;}}
+.gbp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+@media(max-width:600px){.gbp-grid{grid-template-columns:repeat(2,1fr);}}
+.gbp-stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;}
+.gbp-val{font-size:22px;font-weight:800;color:var(--yellow);line-height:1;margin-bottom:4px;}
+.gbp-lbl{font-size:11px;color:var(--muted);}
+.stars{color:var(--yellow);font-size:15px;letter-spacing:1px;}
+.review-list{display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;}
+.review{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.review-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.review-name{font-weight:700;font-size:13px;}
+.review-text{font-size:12.5px;color:var(--muted);line-height:1.5;}
+.kw{width:100%;border-collapse:collapse;}
+.kw th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:6px 10px;text-align:left;font-weight:700;border-bottom:1px solid var(--border);}
+.kw td{padding:9px 10px;font-size:13px;border-top:1px solid var(--border);}
+.pos{font-weight:800;font-size:16px;}.pos.g{color:var(--teal);}.pos.y{color:var(--yellow);}.pos.o{color:var(--orange);}
+.mv{font-size:11px;font-weight:700;}
+.rpanel{background:var(--card);border-left:1px solid var(--border);display:flex;flex-direction:column;}
+.rtabs{display:flex;border-bottom:1px solid var(--border);}
+.rtab{flex:1;padding:11px 4px;text-align:center;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+.rtab.on{color:var(--yellow);border-bottom-color:var(--yellow);}
+.rbody{flex:1;overflow-y:auto;padding:12px;}
+.lc{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:8px;transition:border-color .2s;}
+.lc:hover{border-color:var(--yellow);}
+.lc-name{font-weight:700;font-size:14px;margin-bottom:2px;}
+.lc-meta{font-size:11px;color:var(--muted);margin-bottom:5px;}
+.lc-svc{display:inline-block;background:rgba(253,216,53,0.12);color:var(--yellow);font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;margin-bottom:6px;}
+.lc-btns{display:flex;gap:5px;}
+.lb{font-size:11px;font-weight:700;padding:5px 10px;border-radius:7px;}
+.lb.call{background:var(--green-light);color:#fff;}
+.lb.quo{background:rgba(253,216,53,.15);color:var(--yellow);}
+.lb.won{background:rgba(105,240,174,.1);color:var(--teal);}
+.sdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+.sdot.new{background:var(--teal);}.sdot.pend{background:var(--yellow);}.sdot.done{background:var(--muted);}
+.chat-wrap{display:flex;flex-direction:column;gap:8px;}
+.cb{display:flex;gap:8px;}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.av.p{background:var(--yellow);color:var(--green);}.av.m{background:var(--green-light);color:#fff;}
+.ct{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:12.5px;line-height:1.5;flex:1;}
+.ct-time{font-size:10px;color:var(--muted);margin-top:2px;}
+.chat-input-row{display:flex;gap:8px;margin-top:10px;}
+.chat-in{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:inherit;}
+.chat-in:focus{outline:none;border-color:var(--yellow);}
+.chat-send-btn{background:var(--yellow);color:var(--green);font-weight:800;font-size:12px;padding:9px 14px;border-radius:8px;}
+.bottom{grid-column:1/-1;background:var(--card);border-top:1px solid var(--border);padding:14px 20px;}
+.bottom-inner{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+@media(max-width:900px){.bottom-inner{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.bottom-inner{grid-template-columns:1fr;}}
+.comp-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.cr{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12.5px;}
+.cr:last-child{border:none;}.cr-name{font-weight:600;}.cr-pos{font-weight:800;width:30px;text-align:center;}
+.cr-bar{flex:1;height:4px;background:rgba(255,255,255,.07);border-radius:2px;margin:0 8px;overflow:hidden;}
+.cr-fill{height:100%;border-radius:2px;}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+.ov.on{opacity:1;pointer-events:all;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;max-width:460px;width:100%;transform:scale(.94);transition:transform .25s;}
+.ov.on .modal{transform:scale(1);}
+.modal h3{font-size:17px;font-weight:800;color:var(--yellow);margin-bottom:5px;}
+.modal p{color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.5;}
+.fg{margin-bottom:12px;}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:inherit;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--yellow);}
+.fg textarea{resize:vertical;min-height:80px;}
+.mbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+.mcancel{background:var(--card2);color:var(--muted);padding:9px 18px;border-radius:8px;font-weight:700;font-size:13px;}
+.msubmit{background:var(--yellow);color:var(--green);padding:9px 20px;border-radius:8px;font-weight:800;font-size:13px;}
+.setup-step{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;}
+.setup-step h4{font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:6px;}
+.setup-step p{font-size:12px;color:var(--muted);line-height:1.55;}
+.setup-step code{background:rgba(253,216,53,.1);color:var(--yellow);padding:1px 6px;border-radius:4px;font-size:11px;}
+.setup-inp{width:100%;margin-top:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:inherit;}
+.setup-inp:focus{outline:none;border-color:var(--yellow);}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(253,216,53,.3);border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--green);border-top:2px solid var(--yellow);z-index:200;padding-bottom:env(safe-area-inset-bottom);}
+@media(max-width:750px){.mobile-nav{display:flex;}}
+.mnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;color:rgba(255,255,255,0.6);font-size:10px;font-weight:700;background:none;border:none;cursor:pointer;transition:color .2s;}
+.mnav-btn.on{color:var(--yellow);}.mnav-btn .em{font-size:20px;}
+@media(max-width:750px){.dash{padding-bottom:68px;}}
+.install-banner{position:fixed;bottom:0;left:0;right:0;background:var(--green);border-top:2px solid var(--yellow);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:300;transform:translateY(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);}
+.install-banner.show{transform:translateY(0);}
+.install-banner p{font-size:13px;font-weight:600;color:#fff;flex:1;}
+.install-banner p strong{color:var(--yellow);}
+.install-btn{background:var(--yellow);color:var(--green);font-weight:800;font-size:13px;padding:9px 18px;border-radius:9px;white-space:nowrap;}
+.install-dismiss{color:rgba(255,255,255,0.6);font-size:12px;padding:6px;}
+</style>
+</head>
+<body>
+<div class="install-banner" id="installBanner">
+  <p><strong>Add TPS Pro to your home screen</strong> — tap Share → "Add to Home Screen"</p>
+  <button class="install-btn" id="installBtn">Install</button>
+  <button class="install-dismiss" onclick="dismissInstall()">✕</button>
+</div>
+<div class="mobile-nav">
+  <button class="mnav-btn on" onclick="mobileNav('metrics')"><span class="em">📊</span>Dashboard</button>
+  <button class="mnav-btn" onclick="mobileNav('leads')"><span class="em">🔥</span>Leads</button>
+  <button class="mnav-btn" onclick="mobileNav('gbp')"><span class="em">⭐</span>Reviews</button>
+  <button class="mnav-btn" onclick="mobileNav('actions')"><span class="em">⚡</span>Actions</button>
+  <button class="mnav-btn" onclick="mobileNav('phoebe')"><span class="em">🤖</span>Phoebe</button>
+</div>
+<div class="config-banner" id="configBanner">
+  <span>⚙️ <strong>Setup required:</strong> Deploy Apps Script backend then paste URL to activate live data.</span>
+  <button class="topbar-btn" onclick="openSetup()">Connect Now</button>
+  <button class="config-close" onclick="document.getElementById('configBanner').classList.add('hidden')">✕</button>
+</div>
+<div class="topbar">
+  <div class="topbar-brand"><span class="dot"></span> TPS Pro Command Center</div>
+  <div class="topbar-right">
+    <div class="live-badge"><span class="live-dot"></span><span id="liveStatus">Connecting…</span></div>
+    <span class="topbar-clock" id="clk"></span>
+    <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    <button class="topbar-btn" onclick="openModal('quote')">+ New Quote</button>
+    <button class="topbar-btn" style="background:rgba(255,255,255,.15);color:#fff;" onclick="openSetup()">⚙️</button>
+  </div>
+</div>
+<div class="dash">
+  <div class="metrics" id="metricsRow">
+    <div class="metric"><div class="metric-lbl">Visitors Today</div><div class="metric-val loading-val" id="m-vis">—</div><div class="metric-sub" id="m-vis-sub">Loading…</div></div>
+    <div class="metric"><div class="metric-lbl">This Week</div><div class="metric-val loading-val" id="m-wk">—</div><div class="metric-sub">7-day total</div></div>
+    <div class="metric"><div class="metric-lbl">Leads Today</div><div class="metric-val loading-val" id="m-leads">—</div><div class="metric-trend up" id="m-leads-sub">Loading…</div></div>
+    <div class="metric"><div class="metric-lbl">Pending Quotes</div><div class="metric-val" style="color:var(--orange)" id="m-pend">—</div><div class="metric-sub">Follow up needed</div></div>
+    <div class="metric"><div class="metric-lbl">Google Rating</div><div class="metric-val" style="color:var(--teal)" id="m-rating">—</div><div class="metric-sub" id="m-reviews">Loading…</div></div>
+    <div class="metric"><div class="metric-lbl">Top Ranking</div><div class="metric-val" style="color:var(--teal)">#3</div><div class="metric-sub">commercial cleaning Albany</div></div>
+  </div>
+  <div class="sidebar">
+    <div class="sec-lbl">Quick Actions</div>
+    <button class="qa" onclick="openModal('quote')"><span class="em">📋</span> Create Quote</button>
+    <button class="qa" onclick="openModal('blog')"><span class="em">✍️</span> Post Blog</button>
+    <button class="qa" onclick="openModal('sms')"><span class="em">💬</span> Schedule SMS</button>
+    <button class="qa" onclick="openModal('followup')"><span class="em">📞</span> Follow-up</button>
+    <button class="qa" onclick="openModal('newsletter')"><span class="em">📧</span> Newsletter</button>
+    <div class="sec-lbl">Social</div>
+    <button class="qa" onclick="openModal('ig')"><span class="em">📸</span> Instagram</button>
+    <button class="qa" onclick="openModal('tt')"><span class="em">🎵</span> TikTok</button>
+    <button class="qa" onclick="openModal('yt')"><span class="em">▶️</span> YouTube Short</button>
+    <div class="sec-lbl">Leads</div>
+    <button class="qa" onclick="switchTab('new')"><span class="em">🔥</span> New Leads <span class="bd" id="sb-new">…</span></button>
+    <button class="qa" onclick="switchTab('pend')"><span class="em">⏳</span> Pending <span class="bd red" id="sb-pend">…</span></button>
+    <button class="qa" onclick="switchTab('done')"><span class="em">✅</span> Completed</button>
+    <div class="sec-lbl">System</div>
+    <button class="qa" onclick="switchTab('chat')"><span class="em">🤖</span> Phoebe <span class="bd">Live</span></button>
+    <button class="qa" onclick="openSetup()"><span class="em">⚙️</span> Setup / Connect</button>
+  </div>
+  <div class="center">
+    <div class="card" id="gbpCard">
+      <div class="card-h"><span class="card-title">🏢 Google Business Profile</span><span class="card-sub" id="gbpStatus">Loading…</span></div>
+      <div class="card-b">
+        <div class="gbp-grid">
+          <div class="gbp-stat"><div class="gbp-val" id="gbp-rating">—</div><div class="stars" id="gbp-stars">★★★★★</div><div class="gbp-lbl">Avg Rating</div></div>
+          <div class="gbp-stat"><div class="gbp-val" id="gbp-reviews">—</div><div class="gbp-lbl">Total Reviews</div></div>
+          <div class="gbp-stat"><div class="gbp-val" id="gbp-views">—</div><div class="gbp-lbl">Profile Views</div></div>
+          <div class="gbp-stat"><div class="gbp-val" id="gbp-calls">—</div><div class="gbp-lbl">Calls This Month</div></div>
+        </div>
+        <div class="review-list" id="reviewList"><div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Connect Google Business to see reviews</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><span class="card-title">📈 Website Traffic — Last 7 Days</span><span class="card-sub" id="ga4Status">GA4 · <span class="spin"></span></span></div>
+      <div class="card-b"><div class="ch h180"><canvas id="visitChart"></canvas></div></div>
+    </div>
+    <div class="two">
+      <div class="card"><div class="card-h"><span class="card-title">🌐 Traffic Sources</span></div><div class="card-b"><div class="ch h140"><canvas id="srcChart"></canvas></div></div></div>
+      <div class="card"><div class="card-h"><span class="card-title">📱 Device Split</span></div><div class="card-b"><div class="ch h140"><canvas id="devChart"></canvas></div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><span class="card-title">🎯 Form Conversion Funnel</span><span class="card-sub">This month</span></div>
+      <div class="card-b"><div class="ch h140"><canvas id="funChart"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><span class="card-title">🔍 Keyword Rankings</span><span class="card-sub" style="color:var(--teal)">Updated daily</span></div>
+      <div class="card-b" style="padding:0">
+        <table class="kw">
+          <thead><tr><th>Keyword</th><th>Pos.</th><th>Chg</th><th>Searches/mo</th></tr></thead>
+          <tbody>
+            <tr><td>commercial cleaning Albany NY</td><td><span class="pos g">#3</span></td><td><span class="mv up">↑2</span></td><td>480</td></tr>
+            <tr><td>janitorial services Albany NY</td><td><span class="pos g">#5</span></td><td><span class="mv up">↑1</span></td><td>320</td></tr>
+            <tr><td>student turnover cleaning Albany</td><td><span class="pos y">#8</span></td><td><span class="mv up">↑4</span></td><td>210</td></tr>
+            <tr><td>post-construction cleaning Albany</td><td><span class="pos y">#11</span></td><td><span class="mv dn">↓2</span></td><td>170</td></tr>
+            <tr><td>apartment make-ready Albany NY</td><td><span class="pos o">#14</span></td><td><span class="mv up">↑3</span></td><td>140</td></tr>
+            <tr><td>cleaning services near me Albany</td><td><span class="pos o">#18</span></td><td>–</td><td>590</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="rpanel">
+    <div class="rtabs">
+      <div class="rtab on" onclick="switchTab('new')" id="rt-new">🔥 New</div>
+      <div class="rtab" onclick="switchTab('pend')" id="rt-pend">⏳ Quotes</div>
+      <div class="rtab" onclick="switchTab('done')" id="rt-done">✅ Done</div>
+      <div class="rtab" onclick="switchTab('chat')" id="rt-chat">🤖</div>
+    </div>
+    <div class="rbody" id="rbody"><div style="text-align:center;padding:30px;color:var(--muted);font-size:13px;"><div class="spin"></div><br/><br/>Loading leads…</div></div>
+  </div>
+  <div class="bottom">
+    <div class="bottom-inner">
+      <div>
+        <div class="comp-lbl">🏆 Your Rankings</div>
+        <div class="cr"><span class="cr-name">TPS Pro</span><span class="cr-pos" style="color:var(--teal)">#3</span><div class="cr-bar"><div class="cr-fill" style="width:85%;background:var(--teal)"></div></div></div>
+        <div class="cr" style="color:var(--muted);font-size:12px;padding-top:6px">Goal: #1 by Aug 2026</div>
+      </div>
+      <div>
+        <div class="comp-lbl">👥 Competitors</div>
+        <div class="cr"><span class="cr-name">Albany Clean Co.</span><span class="cr-pos" style="color:var(--yellow)">#1</span><div class="cr-bar"><div class="cr-fill" style="width:100%;background:var(--yellow)"></div></div></div>
+        <div class="cr"><span class="cr-name">Capital Janitorial</span><span class="cr-pos" style="color:var(--orange)">#2</span><div class="cr-bar"><div class="cr-fill" style="width:92%;background:var(--orange)"></div></div></div>
+        <div class="cr"><span class="cr-name">Clean Pro Albany</span><span class="cr-pos" style="color:var(--muted)">#7</span><div class="cr-bar"><div class="cr-fill" style="width:55%;background:var(--muted)"></div></div></div>
+      </div>
+      <div>
+        <div class="comp-lbl">📊 Monthly Traffic Est.</div>
+        <div class="cr"><span class="cr-name">TPS Pro</span><span style="color:var(--teal);font-weight:700" id="traffic-tps">—</span></div>
+        <div class="cr"><span class="cr-name">Albany Clean Co.</span><span style="color:var(--muted)">~520</span></div>
+        <div class="cr"><span class="cr-name">Capital Janitorial</span><span style="color:var(--muted)">~410</span></div>
+        <div class="cr"><span class="cr-name">Next check</span><span style="color:var(--muted)">Mon 9 AM</span></div>
+      </div>
+      <div>
+        <div class="comp-lbl">🎯 SEO Goals (3-Month)</div>
+        <div class="cr"><span>#1 — commercial cleaning Albany</span><span style="color:var(--yellow);font-weight:700">38%</span></div>
+        <div class="cr"><span>#1 — student turnover Albany</span><span style="color:var(--orange);font-weight:700">22%</span></div>
+        <div class="cr"><span>#3 — janitorial Albany</span><span style="color:var(--teal);font-weight:700">71%</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="ov" id="setupOv" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal" style="max-width:520px">
+    <h3>⚙️ Connect Live Data</h3>
+    <p>Paste your deployed Apps Script URL to activate real leads, GA4 traffic, and Google Business data.</p>
+    <div class="setup-step">
+      <h4>Step 1 — Deploy the Apps Script</h4>
+      <p>1. Go to <strong>script.google.com</strong> → New Project<br>2. Paste the code from <code>tpspro_backend.gs</code><br>3. Click <strong>Deploy → New deployment → Web app</strong><br>4. Execute as: <strong>Me</strong> · Who has access: <strong>Anyone</strong><br>5. Copy the Web App URL</p>
+    </div>
+    <div class="setup-step">
+      <h4>Step 2 — Paste URL here</h4>
+      <input class="setup-inp" id="scriptUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec" value=""/>
+    </div>
+    <div class="setup-step">
+      <h4>Step 3 — GA4 Property ID <span style="color:var(--muted);font-weight:400">(optional)</span></h4>
+      <p>In Google Analytics → Admin → Property Settings → Property ID (numbers only, not G-XXXX)</p>
+      <input class="setup-inp" id="ga4Id" type="text" placeholder="123456789"/>
+    </div>
+    <div class="mbtns">
+      <button class="mcancel" onclick="document.getElementById('setupOv').classList.remove('on')">Cancel</button>
+      <button class="msubmit" onclick="saveConfig()">Save &amp; Connect</button>
+    </div>
+  </div>
+</div>
+<div class="ov" id="actionOv" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal"><h3 id="act-title"></h3><p id="act-desc"></p><div id="act-fields"></div>
+    <div class="mbtns">
+      <button class="mcancel" onclick="document.getElementById('actionOv').classList.remove('on')">Cancel</button>
+      <button class="msubmit" onclick="submitAction()">Send It ✓</button>
+    </div>
+  </div>
+</div>
+<script>
+let SCRIPT_URL=localStorage.getItem('tps_script_url')||'';
+let GA4_ID=localStorage.getItem('tps_ga4_id')||'';
+function saveConfig(){const u=document.getElementById('scriptUrl').value.trim();const g=document.getElementById('ga4Id').value.trim();if(!u){alert('Paste the Apps Script URL first.');return;}SCRIPT_URL=u;GA4_ID=g;localStorage.setItem('tps_script_url',u);localStorage.setItem('tps_ga4_id',g);document.getElementById('setupOv').classList.remove('on');document.getElementById('configBanner').classList.add('hidden');loadAll();}
+function openSetup(){document.getElementById('scriptUrl').value=SCRIPT_URL;document.getElementById('ga4Id').value=GA4_ID;document.getElementById('setupOv').classList.add('on');}
+if(SCRIPT_URL)document.getElementById('configBanner').classList.add('hidden');
+function tick(){document.getElementById('clk').textContent=new Date().toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
+tick();setInterval(tick,30000);
+async function apiFetch(action){if(!SCRIPT_URL)return null;try{const r=await fetch(`${SCRIPT_URL}?action=${action}`);return await r.json();}catch(e){return null;}}
+Chart.defaults.color='#81C784';Chart.defaults.borderColor='rgba(253,216,53,0.1)';Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
+const visitChart=new Chart(document.getElementById('visitChart'),{type:'bar',data:{labels:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],datasets:[{label:'Visitors',data:[0,0,0,0,0,0,0],backgroundColor:'rgba(253,216,53,0.75)',borderRadius:6,borderWidth:0},{label:'Leads',data:[0,0,0,0,0,0,0],backgroundColor:'rgba(105,240,174,0.6)',borderRadius:6,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true}}}});
+const srcChart=new Chart(document.getElementById('srcChart'),{type:'doughnut',data:{labels:['Organic','Direct','Referral','Social'],datasets:[{data:[52,28,12,8],backgroundColor:['#FDD835','#69F0AE','#42A5F5','#FFA726'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}}}}});
+const devChart=new Chart(document.getElementById('devChart'),{type:'doughnut',data:{labels:['Mobile','Desktop','Tablet'],datasets:[{data:[61,34,5],backgroundColor:['#FDD835','#388E3C','#81C784'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}}}}});
+const funChart=new Chart(document.getElementById('funChart'),{type:'bar',data:{labels:['Page Views','Scrolled 50%','Saw Form','Started','Submitted'],datasets:[{data:[0,0,0,0,0],backgroundColor:['rgba(253,216,53,.8)','rgba(253,216,53,.65)','rgba(253,216,53,.5)','rgba(105,240,174,.65)','rgba(105,240,174,.9)'],borderRadius:5,borderWidth:0}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true},y:{grid:{display:false}}}}});
+async function loadGA4(){const data=await apiFetch('analytics');const el=document.getElementById('ga4Status');if(!data||data.error){el.innerHTML=data?.error?.includes('not configured')?'Add GA4 ID in Setup ⚙️':'GA4 error';return;}el.innerHTML='GA4 · Live ✓';const days=data.daily||[];const labels=days.map(d=>{const dt=d.date;return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(dt.slice(0,4)+'-'+dt.slice(4,6)+'-'+dt.slice(6,8)).getDay()];});visitChart.data.labels=labels.length?labels:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];visitChart.data.datasets[0].data=days.map(d=>d.users);visitChart.update();const tot=data.totals||{};document.getElementById('m-vis').textContent=days.length?days[days.length-1].users:'—';document.getElementById('m-wk').textContent=tot.users||'—';document.getElementById('traffic-tps').textContent='~'+(tot.users||'—');if(tot.views){funChart.data.datasets[0].data=[tot.views,Math.round(tot.views*.7),Math.round(tot.views*.43),Math.round(tot.views*.19),Math.round(tot.views*.08)];funChart.update();}}
+async function loadGBP(){const data=await apiFetch('reviews');const el=document.getElementById('gbpStatus');if(!data||data.error){el.textContent='Not connected';return;}el.textContent='Live ✓';const rating=parseFloat(data.average_rating)||0;document.getElementById('gbp-rating').textContent=rating.toFixed(1);document.getElementById('m-rating').textContent=rating.toFixed(1);document.getElementById('gbp-reviews').textContent=data.total_reviews||0;document.getElementById('m-reviews').textContent=`${data.total_reviews||0} reviews`;document.getElementById('gbp-stars').textContent='★'.repeat(Math.round(rating))+'☆'.repeat(5-Math.round(rating));const rl=document.getElementById('reviewList');if(data.reviews&&data.reviews.length){rl.innerHTML=data.reviews.map(r=>`<div class="review"><div class="review-top"><span class="review-name">${r.reviewer}</span><span class="stars">${'★'.repeat(starsNum(r.rating))}</span></div><div class="review-text">${r.comment||'(no comment)'}</div></div>`).join('');}}
+function starsNum(r){const m={ONE:1,TWO:2,THREE:3,FOUR:4,FIVE:5};return m[r]||parseInt(r)||5;}
+let leadsData={new_leads:[],pending:[],completed:[]};
+async function loadLeads(){const data=await apiFetch('leads');if(data&&!data.error){leadsData=data;document.getElementById('m-leads').textContent=data.today_count||0;document.getElementById('m-pend').textContent=data.pending?.length||0;document.getElementById('sb-new').textContent=data.new_leads?.length||0;document.getElementById('sb-pend').textContent=data.pending?.length||0;document.getElementById('m-leads-sub').textContent=`${data.new_leads?.length||0} new, ${data.pending?.length||0} quoted`;if(document.getElementById('rt-new').classList.contains('on'))renderTab('new');}else{document.getElementById('m-leads').textContent='0';document.getElementById('m-leads-sub').textContent='Connect backend';}}
+const chatLog=[{from:'p',text:'All cron jobs ran successfully. Sent Coda/Mayflower follow-up at 9 AM.',time:'9:01 AM'},{from:'p',text:'Dashboard is live. 2 new leads today. HubSpot token still pending.',time:'9:05 AM'},{from:'m',text:'Chase Coda again at 3pm.',time:'9:08 AM'},{from:'p',text:'Reminder set — will send follow-up automatically at 3:00 PM.',time:'9:08 AM'}];
+function renderLead(l,type){const name=l['Name']||l.name||'Unknown';const phone=l['Phone']||l.phone||'';const svc=l['Service Needed']||l.service||'General';const date=l['Date']||l.date||'';const btns=type==='new'?`<button class="lb call" onclick="window.open('tel:${phone}')">📞 Call</button><button class="lb quo" onclick="openModal('quote')">💰 Quote</button>`:type==='pend'?`<button class="lb call">📞 Follow Up</button><button class="lb won">✅ Mark Won</button>`:`<button class="lb won">✅ Completed</button>`;const dot=type==='new'?'new':type==='pend'?'pend':'done';return`<div class="lc"><div class="lc-name"><span class="sdot ${dot}"></span>${name}</div><div class="lc-meta">${date?date.toString().slice(0,16):''} ${phone?'· '+phone:''}</div><span class="lc-svc">${svc}</span><div class="lc-btns">${btns}</div></div>`;}
+function renderTab(tab){const rb=document.getElementById('rbody');if(tab==='new'){const items=leadsData.new_leads||[];rb.innerHTML=items.length?items.map(l=>renderLead(l,'new')).join(''):'<p style="color:var(--muted);font-size:13px;padding:20px;text-align:center">No new leads yet.</p>';}else if(tab==='pend'){const items=leadsData.pending||[];rb.innerHTML=items.length?items.map(l=>renderLead(l,'pend')).join(''):'<p style="color:var(--muted);font-size:13px;padding:20px;text-align:center">No pending quotes.</p>';}else if(tab==='done'){const items=leadsData.completed||[];rb.innerHTML=items.length?items.map(l=>renderLead(l,'done')).join(''):'<p style="color:var(--muted);font-size:13px;padding:20px;text-align:center">No completed jobs yet.</p>';}else if(tab==='chat'){rb.innerHTML=`<div class="chat-wrap">${chatLog.map(m=>`<div class="cb"><div class="av ${m.from}">${m.from==='p'?'🤖':'M'}</div><div><div class="ct">${m.text}</div><div class="ct-time">${m.time}</div></div></div>`).join('')}<div class="chat-input-row"><input class="chat-in" id="chatIn" placeholder="Message Phoebe…"/><button class="chat-send-btn" onclick="sendChat()">Send</button></div></div>`;}}
+function switchTab(tab){['new','pend','done','chat'].forEach(t=>{const rt=document.getElementById('rt-'+t);if(rt)rt.classList.toggle('on',t===tab);});renderTab(tab);}
+function sendChat(){const inp=document.getElementById('chatIn');const msg=inp.value.trim();if(!msg)return;chatLog.push({from:'m',text:msg,time:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})});renderTab('chat');}
+const modals={quote:{t:'📋 Create Quote',d:'Generate a branded quote for a client.',f:`<div class="fg"><label>Client Name</label><input type="text" id="f-name" placeholder="Jane Smith"/></div><div class="fg"><label>Service</label><select><option>Commercial Janitorial</option><option>Student Turnover</option><option>Post-Construction</option><option>Make-Ready</option><option>Airbnb Turnover</option><option>Floor Care</option></select></div><div class="fg"><label>Amount</label><input type="text" id="f-amt" placeholder="$2,400"/></div><div class="fg"><label>Notes</label><textarea placeholder="Scope details…"></textarea></div>`},blog:{t:'✍️ Post Blog',d:'Publish a new article.',f:`<div class="fg"><label>Title</label><input type="text" placeholder="5 Tips for Student Turnover Season"/></div><div class="fg"><label>Category</label><select><option>Student Housing</option><option>Commercial Cleaning</option><option>Post-Construction</option><option>Property Management</option></select></div><div class="fg"><label>Content</label><textarea style="min-height:100px" placeholder="Article content…"></textarea></div>`},sms:{t:'💬 Schedule SMS',d:'Send via Twilio.',f:`<div class="fg"><label>To (Phone)</label><input type="tel" placeholder="(518) 555-0100"/></div><div class="fg"><label>Message</label><textarea placeholder="Hi, this is Miguel at TPS Pro…"></textarea></div><div class="fg"><label>Send at</label><input type="datetime-local"/></div>`},followup:{t:'📞 Follow-Up',d:'Quick email or SMS follow-up.',f:`<div class="fg"><label>Lead Name</label><input type="text" placeholder="Client name"/></div><div class="fg"><label>Via</label><select><option>Email</option><option>SMS</option><option>Both</option></select></div><div class="fg"><label>Message</label><textarea placeholder="Just following up on your quote…"></textarea></div>`},newsletter:{t:'📧 Newsletter',d:'Send to your email list.',f:`<div class="fg"><label>Subject</label><input type="text" placeholder="TPS Pro — May 2026 Update"/></div><div class="fg"><label>Message</label><textarea style="min-height:100px"></textarea></div>`},ig:{t:'📸 Instagram Post',d:'Compose caption and schedule.',f:`<div class="fg"><label>Caption</label><textarea placeholder="Fresh spaces, fresh starts… #AlbanyCleaning" style="min-height:80px"></textarea></div><div class="fg"><label>Hashtags</label><input value="#AlbanyNY #CommercialCleaning #TotalPropertySolutions"/></div><div class="fg"><label>Schedule</label><input type="datetime-local"/></div>`},tt:{t:'🎵 TikTok Video',d:'Before/after content performs best.',f:`<div class="fg"><label>Caption</label><textarea placeholder="Watch this transformation… #CleanTok"></textarea></div><div class="fg"><label>Type</label><select><option>Before/After</option><option>Behind the Scenes</option><option>Tips</option><option>Testimonial</option></select></div>`},yt:{t:'▶️ YouTube Short',d:'60-second content.',f:`<div class="fg"><label>Title</label><input placeholder="Student Housing Turnover in 60 Seconds"/></div><div class="fg"><label>Description</label><textarea></textarea></div>`}};
+function openModal(type){const m=modals[type];if(!m)return;document.getElementById('act-title').textContent=m.t;document.getElementById('act-desc').textContent=m.d;document.getElementById('act-fields').innerHTML=m.f;document.getElementById('actionOv').classList.add('on');}
+function submitAction(){document.getElementById('actionOv').classList.remove('on');alert('✅ Action submitted!');}
+async function loadAll(){if(!SCRIPT_URL){document.getElementById('liveStatus').textContent='Not connected';renderTab('new');return;}document.getElementById('liveStatus').textContent='Connecting…';await Promise.all([loadGA4(),loadGBP(),loadLeads()]);document.getElementById('liveStatus').textContent='Live ✓';}
+loadAll();renderTab('new');setInterval(loadAll,180000);
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!localStorage.getItem('pwa_installed'))document.getElementById('installBanner').classList.add('show');});
+document.getElementById('installBtn').addEventListener('click',async()=>{if(deferredPrompt){deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;if(outcome==='accepted'){localStorage.setItem('pwa_installed','1');document.getElementById('installBanner').classList.remove('show');}deferredPrompt=null;}else{alert('To install on iPhone:\n1. Tap the Share button\n2. Tap "Add to Home Screen"\n3. Tap "Add"');}});
+window.addEventListener('appinstalled',()=>{localStorage.setItem('pwa_installed','1');document.getElementById('installBanner').classList.remove('show');});
+function dismissInstall(){document.getElementById('installBanner').classList.remove('show');localStorage.setItem('pwa_dismissed','1');}
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;if(isIOS&&!isStandalone&&!localStorage.getItem('pwa_dismissed')){setTimeout(()=>document.getElementById('installBanner').classList.add('show'),3000);}
+const mobileViews={metrics:()=>document.querySelector('.metrics').scrollIntoView({behavior:'smooth'}),leads:()=>{switchTab('new');document.querySelector('.rpanel')?.scrollIntoView({behavior:'smooth'});document.querySelector('.center').style.display=window.innerWidth<=750?'none':'';document.querySelector('.rpanel').style.display='flex';document.querySelector('.rpanel').style.gridColumn='1/-1';document.querySelector('.rpanel').style.minHeight='60vh';},gbp:()=>{document.getElementById('gbpCard').scrollIntoView({behavior:'smooth'});document.querySelector('.center').style.display='';document.querySelector('.rpanel').style.gridColumn='';},actions:()=>openModal('quote'),phoebe:()=>{switchTab('chat');document.querySelector('.rpanel')?.scrollIntoView({behavior:'smooth'});}};
+function mobileNav(view){document.querySelectorAll('.mnav-btn').forEach(b=>b.classList.remove('on'));event.currentTarget.classList.add('on');if(mobileViews[view])mobileViews[view]();}
+window.addEventListener('resize',()=>{if(window.innerWidth>750){document.querySelector('.center').style.display='';document.querySelector('.rpanel').style.gridColumn='';}});
+</script>
+</body>
+</html>
